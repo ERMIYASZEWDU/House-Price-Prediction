@@ -1,0 +1,22 @@
+# Ignore Streamlit files
+app.py
+simple_web_app.py
+*.bat
+launch.py
+run_app.py
+troubleshoot.py
+test_app.py
+
+# Ignore Jupyter files
+*.ipynb
+.ipynb_checkpoints/
+
+# Ignore development files
+*.md
+*.txt
+*.html
+
+# Keep only essential files for Vercel
+!api/
+!vercel.json
+!requirements_vercel.txt
