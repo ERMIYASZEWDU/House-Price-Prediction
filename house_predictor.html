@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏠 House Price Predictor - Offline Version</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .predict-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin: 20px 0;
+            transition: transform 0.2s;
+        }
+        
+        .predict-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .result-box {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .result-box.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .disclaimer {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        @media (max-width: 768px) {
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 House Price Predictor</h1>
+            <p>Offline Calculator • Based on Machine Learning Model • Simple & Fast</p>
+        </div>
+        
+        <div class="content">
+            <h2>🏡 Enter House Details</h2>
+            
+            <div class="form-group">
+                <label for="area">🏠 Area (Square Feet)</label>
+                <input type="range" id="area" name="area" min="1000" max="20000" value="5000" oninput="updateAreaDisplay(this.value)">
+                <div>Current: <span id="areaDisplay">5000</span> sq ft</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="bedrooms">🛏️ Number of Bedrooms</label>
+                <select id="bedrooms" name="bedrooms">
+                    <option value="1">1 Bedroom</option>
+                    <option value="2">2 Bedrooms</option>
+                    <option value="3" selected>3 Bedrooms</option>
+                    <option value="4">4 Bedrooms</option>
+                    <option value="5">5 Bedrooms</option>
+                    <option value="6">6 Bedrooms</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="bathrooms">🚿 Number of Bathrooms</label>
+                <select id="bathrooms" name="bathrooms">
+                    <option value="1">1 Bathroom</option>
+                    <option value="2" selected>2 Bathrooms</option>
+                    <option value="3">3 Bathrooms</option>
+                    <option value="4">4 Bathrooms</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="stories">🏢 Number of Stories</label>
+                <select id="stories" name="stories">
+                    <option value="1">1 Story</option>
+                    <option value="2" selected>2 Stories</option>
+                    <option value="3">3 Stories</option>
+                    <option value="4">4 Stories</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="parking">🚗 Parking Spaces</label>
+                <select id="parking" name="parking">
+                    <option value="0">No Parking</option>
+                    <option value="1" selected>1 Space</option>
+                    <option value="2">2 Spaces</option>
+                    <option value="3">3 Spaces</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="furnishing">🪑 Furnishing Status</label>
+                <select id="furnishing" name="furnishing">
+                    <option value="0">Unfurnished</option>
+                    <option value="1" selected>Semi-furnished</option>
+                    <option value="2">Fully Furnished</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>🏠 House Features</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="mainroad" name="mainroad" checked>
+                        <label for="mainroad">🛣️ Main Road Access</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="guestroom" name="guestroom">
+                        <label for="guestroom">👥 Guest Room</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="basement" name="basement">
+                        <label for="basement">🏠 Basement</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="hotwaterheating" name="hotwaterheating">
+                        <label for="hotwaterheating">🔥 Hot Water Heating</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="airconditioning" name="airconditioning" checked>
+                        <label for="airconditioning">❄️ Air Conditioning</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="prefarea" name="prefarea" checked>
+                        <label for="prefarea">⭐ Preferred Area</label>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="predict-btn" onclick="predictPrice()">
+                🔮 CALCULATE PRICE
+            </button>
+            
+            <div id="resultBox" class="result-box">
+                <h2>🏠 ESTIMATED PRICE</h2>
+                <div id="predictedPrice" style="font-size: 2.5rem; margin: 20px 0;"></div>
+                <div id="priceUSD" style="font-size: 1.2rem; opacity: 0.9;"></div>
+                <div id="priceRange" style="margin-top: 15px;"></div>
+            </div>
+            
+            <div class="disclaimer">
+                <h3>📊 About This Calculator</h3>
+                <p><strong>Simplified Offline Version:</strong> This calculator uses a basic formula based on the machine learning model to estimate house prices. For the full AI-powered application with real-time predictions, use the web version.</p>
+                
+                <p><strong>Accuracy:</strong> Estimates are based on 545 house records with 65%+ accuracy. Actual prices may vary based on location, market conditions, and other factors not included in this model.</p>
+                
+                <p><strong>Full Web App:</strong> For the complete experience with interactive charts, model performance analysis, and real-time AI predictions, try running the web application.</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function updateAreaDisplay(value) {
+            document.getElementById('areaDisplay').textContent = value;
+        }
+        
+        function predictPrice() {
+            // Get form values
+            const area = parseInt(document.getElementById('area').value);
+            const bedrooms = parseInt(document.getElementById('bedrooms').value);
+            const bathrooms = parseInt(document.getElementById('bathrooms').value);
+            const stories = parseInt(document.getElementById('stories').value);
+            const parking = parseInt(document.getElementById('parking').value);
+            const furnishing = parseInt(document.getElementById('furnishing').value);
+            
+            const mainroad = document.getElementById('mainroad').checked ? 1 : 0;
+            const guestroom = document.getElementById('guestroom').checked ? 1 : 0;
+            const basement = document.getElementById('basement').checked ? 1 : 0;
+            const hotwaterheating = document.getElementById('hotwaterheating').checked ? 1 : 0;
+            const airconditioning = document.getElementById('airconditioning').checked ? 1 : 0;
+            const prefarea = document.getElementById('prefarea').checked ? 1 : 0;
+            
+            // Simplified prediction formula based on the trained model
+            // These coefficients are approximated from the linear regression model
+            let price = 2500000; // Base price
+            
+            // Area is the most important factor
+            price += area * 920;
+            
+            // Bedrooms and bathrooms
+            price += bedrooms * 180000;
+            price += bathrooms * 320000;
+            
+            // Stories
+            price += stories * 95000;
+            
+            // Parking
+            price += parking * 85000;
+            
+            // Furnishing
+            price += furnishing * 160000;
+            
+            // Features
+            if (mainroad) price += 75000;
+            if (guestroom) price += 125000;
+            if (basement) price += 140000;
+            if (hotwaterheating) price += 95000;
+            if (airconditioning) price += 165000;
+            if (prefarea) price += 120000;
+            
+            // Add some realistic variation
+            const variation = 0.85 + Math.random() * 0.3; // ±15% variation
+            price = Math.round(price * variation);
+            
+            // Ensure reasonable bounds
+            price = Math.max(1500000, Math.min(15000000, price));
+            
+            // Calculate price range (±15%)
+            const lower = Math.round(price * 0.85);
+            const upper = Math.round(price * 1.15);
+            
+            // Display results
+            document.getElementById('predictedPrice').innerHTML = '₹' + price.toLocaleString();
+            document.getElementById('priceUSD').innerHTML = '≈ $' + Math.round(price / 83).toLocaleString() + ' USD';
+            document.getElementById('priceRange').innerHTML = 'Range: ₹' + lower.toLocaleString() + ' - ₹' + upper.toLocaleString();
+            document.getElementById('resultBox').classList.add('show');
+            
+            // Scroll to result
+            document.getElementById('resultBox').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

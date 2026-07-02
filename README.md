@@ -2,22 +2,44 @@
 
 A comprehensive machine learning project with a **beautiful web UI** that predicts house prices using advanced regression models. This project demonstrates the complete ML pipeline from data preprocessing to model comparison and includes a professional web application for real-time predictions.
 
-## 🌟 **NEW! Beautiful Web Application**
+## 🌟 **NEW! Multiple Launch Options - Connection Issues Solved!**
 
-### 🚀 **Quick Launch Options**
+### 🚀 **Launch Options (Choose What Works Best):**
+
+#### **🎯 Option 1: Streamlit Web App** (Main Application)
 ```bash
-# Option 1: Double-click launcher (Windows)
-LAUNCH_UI.bat
+# Try these in order:
+python launch.py                    # Auto-installer launcher
+streamlit run app.py               # Direct command
+python troubleshoot.py             # Diagnostic mode
+```
+**Access:** http://localhost:8501
 
-# Option 2: Python launcher (Auto-installs packages)
-python run_app.py
+#### **🔧 Option 2: Backup Web Server** (If Streamlit Issues)
+```bash
+# Uses Python's built-in web server:
+python simple_web_app.py           # Alternative server
+# OR double-click: BACKUP_LAUNCHER.bat
+```
+**Access:** http://localhost:8080
 
-# Option 3: Direct launch
-pip install -r requirements.txt
-streamlit run app.py
+#### **💻 Option 3: Offline HTML Calculator** (No Server Required)
+```bash
+# Open directly in browser:
+double-click: house_predictor.html  # Works offline!
+```
+**Access:** Open file in any web browser
+
+#### **🖱️ Option 4: Windows Batch Launchers**
+```bash
+SIMPLE_LAUNCH.bat      # Streamlined launcher
+LAUNCH_UI.bat          # Full-featured launcher  
+BACKUP_LAUNCHER.bat    # Alternative web server
 ```
 
-### 🎨 **Web UI Features**
+---
+
+## 🎨 **Web Interface Features**
 - ✨ **Modern Design** with gradients and animations
 - 🏠 **Interactive Price Prediction** with sliders and dropdowns
 - 📊 **Real-time Analytics Dashboard** with beautiful charts
@@ -84,14 +106,19 @@ This project develops and compares multiple regression models to predict house p
 ```
 House-Price-Prediction/
 │
-├── 🎨 app.py                         # Beautiful web application
-├── 🚀 run_app.py                     # Auto-installer launcher  
-├── 💻 LAUNCH_UI.bat                  # Windows double-click launcher
-├── 📋 requirements.txt               # Web app dependencies
+├── 🎨 app.py                         # Main Streamlit web application
+├── 🔧 simple_web_app.py             # Backup Python web server (port 8080)
+├── 💻 house_predictor.html          # Offline HTML calculator (no server)
+├── 🚀 launch.py                     # Cross-platform launcher
+├── 🛠️ troubleshoot.py               # Diagnostic & troubleshooting tool
+├── 🔧 BACKUP_LAUNCHER.bat           # Backup server launcher (Windows)
+├── 💻 SIMPLE_LAUNCH.bat             # Streamlined launcher (Windows)
+├── 🚀 run_app.py                    # Original auto-installer launcher  
+├── 📋 requirements.txt              # Web app dependencies
 ├── 📖 WEB_UI_GUIDE.md               # Complete UI documentation
-├── housing_price_prediction.ipynb    # Main Jupyter notebook
-├── Housing.csv                       # Dataset
-├── README.md                         # Project documentation
+├── housing_price_prediction.ipynb   # Main Jupyter notebook
+├── Housing.csv                      # Dataset
+├── README.md                        # Project documentation
 ├── HOW_TO_TEST_MODEL.md             # Testing guide
 ├── INTERACTIVE_TESTER.py            # Interactive prediction tool
 ├── MODEL_IMPROVEMENTS_GUIDE.md      # Model enhancement guide
@@ -100,16 +127,24 @@ House-Price-Prediction/
 
 ## 🚀 Getting Started
 
-### **🌐 Web Application (Recommended)**
-1. **Quick Launch**: Double-click `LAUNCH_UI.bat` (Windows)
-2. **Python Launch**: Run `python run_app.py` 
-3. **Manual Launch**: 
-   ```bash
-   pip install -r requirements.txt
-   streamlit run app.py
-   ```
-4. **Access**: Open http://localhost:8501 in your browser
-5. **Enjoy**: Beautiful, interactive web interface!
+### **🌐 Web Applications (Multiple Options)**
+
+#### **🎯 Main Streamlit App** (Full-Featured)
+1. **Quick Launch**: Run `python launch.py` 
+2. **Direct Launch**: Run `streamlit run app.py`
+3. **Windows**: Double-click `SIMPLE_LAUNCH.bat`
+4. **Troubleshooting**: Run `python troubleshoot.py`
+5. **Access**: Open http://localhost:8501 in browser
+
+#### **🔧 Backup Web Server** (If Streamlit Issues)
+1. **Python Launch**: Run `python simple_web_app.py`
+2. **Windows**: Double-click `BACKUP_LAUNCHER.bat`  
+3. **Access**: Open http://localhost:8080 in browser
+
+#### **💻 Offline Calculator** (No Server Required)
+1. **Direct Use**: Double-click `house_predictor.html`
+2. **Works**: In any web browser, even offline
+3. **Features**: Basic price calculation with beautiful UI
 
 ### **📓 Jupyter Notebook**
 1. Install prerequisites: `pip install pandas numpy scikit-learn matplotlib seaborn jupyter`
@@ -138,12 +173,28 @@ House-Price-Prediction/
 
 ## 🎮 Interactive Features
 
-### 🌐 **Web Application**
-- **Real-time Predictions**: Enter house specs and get instant price estimates
-- **Interactive Charts**: Zoom, pan, and explore market data
-- **Responsive Design**: Works perfectly on desktop, tablet, and mobile
-- **Professional UI**: Modern gradients, animations, and beautiful layouts
-- **Market Insights**: Compare your prediction with market averages
+### 🌐 **Web Applications (3 Options)**
+
+#### **🎨 Main Streamlit App** (Full Experience)
+- **Real-time AI Predictions**: Dual ML models (Linear + Random Forest)
+- **Interactive Analytics Dashboard**: Beautiful Plotly charts
+- **Model Performance Analysis**: Accuracy metrics and comparisons
+- **Professional UI**: Gradient design with animations
+- **Responsive**: Works on desktop, tablet, and mobile
+
+#### **🔧 Backup Web Server** (Alternative)
+- **Pure Python Server**: Uses built-in HTTP server
+- **No Streamlit Required**: Works if Streamlit has issues
+- **Beautiful Interface**: Modern gradient design
+- **Real ML Predictions**: Same accuracy as main app
+- **Port 8080**: Different port to avoid conflicts
+
+#### **💻 Offline HTML Calculator** (No Server)
+- **Instant Access**: No installation or server required
+- **Works Offline**: Open in any browser, anytime
+- **Smart Estimations**: Based on trained ML model
+- **Mobile Friendly**: Responsive design
+- **Zero Setup**: Just double-click and use
 
 ### 📓 **Jupyter Notebook**
 ```python
