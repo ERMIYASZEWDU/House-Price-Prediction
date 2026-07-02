@@ -2,20 +2,22 @@
 
 A comprehensive machine learning project with a **beautiful web UI** that predicts house prices using advanced regression models. This project demonstrates the complete ML pipeline from data preprocessing to model comparison and includes a professional web application for real-time predictions.
 
-## 🌟 **NEW! Multiple Launch Options - Connection Issues Solved!**
+## 🌟 **Multiple Deployment Options - Local & Cloud!**
 
-### 🚀 **Launch Options (Choose What Works Best):**
+### 🚀 **Local Development Options:**
 
-#### **🎯 Option 1: Streamlit Web App** (Main Application)
+#### **🎯 Option 1: Streamlit Web App** (Full-Featured)
 ```bash
-# Try these in order:
+# Install Streamlit dependencies:
+pip install -r requirements_streamlit.txt
+# Launch options:
 python launch.py                    # Auto-installer launcher
 streamlit run app.py               # Direct command
 python troubleshoot.py             # Diagnostic mode
 ```
 **Access:** http://localhost:8501
 
-#### **🔧 Option 2: Backup Web Server** (If Streamlit Issues)
+#### **🔧 Option 2: Backup Web Server** (Alternative)
 ```bash
 # Uses Python's built-in web server:
 python simple_web_app.py           # Alternative server
@@ -23,19 +25,22 @@ python simple_web_app.py           # Alternative server
 ```
 **Access:** http://localhost:8080
 
-#### **💻 Option 3: Offline HTML Calculator** (No Server Required)
+#### **💻 Option 3: Offline HTML Calculator** (No Server)
 ```bash
 # Open directly in browser:
 double-click: house_predictor.html  # Works offline!
 ```
 **Access:** Open file in any web browser
 
-#### **🖱️ Option 4: Windows Batch Launchers**
+### 🌐 **Cloud Deployment Option:**
+
+#### **☁️ Vercel Cloud Hosting** (Production Ready)
 ```bash
-SIMPLE_LAUNCH.bat      # Streamlined launcher
-LAUNCH_UI.bat          # Full-featured launcher  
-BACKUP_LAUNCHER.bat    # Alternative web server
+# Deploy to Vercel cloud:
+vercel --prod
+# Uses: api/index.py (Flask serverless functions)
 ```
+**Features:** Global CDN, automatic HTTPS, scaling, professional domain
 
 ---
 
@@ -107,6 +112,8 @@ This project develops and compares multiple regression models to predict house p
 House-Price-Prediction/
 │
 ├── 🎨 app.py                         # Main Streamlit web application
+├── 🌐 api/index.py                  # Vercel Flask serverless function
+├── ☁️ vercel.json                    # Vercel deployment configuration
 ├── 🔧 simple_web_app.py             # Backup Python web server (port 8080)
 ├── 💻 house_predictor.html          # Offline HTML calculator (no server)
 ├── 🚀 launch.py                     # Cross-platform launcher
@@ -114,7 +121,8 @@ House-Price-Prediction/
 ├── 🔧 BACKUP_LAUNCHER.bat           # Backup server launcher (Windows)
 ├── 💻 SIMPLE_LAUNCH.bat             # Streamlined launcher (Windows)
 ├── 🚀 run_app.py                    # Original auto-installer launcher  
-├── 📋 requirements.txt              # Web app dependencies
+├── 📋 requirements.txt              # Vercel/Flask dependencies
+├── 📋 requirements_streamlit.txt    # Streamlit dependencies
 ├── 📖 WEB_UI_GUIDE.md               # Complete UI documentation
 ├── housing_price_prediction.ipynb   # Main Jupyter notebook
 ├── Housing.csv                      # Dataset
@@ -127,14 +135,24 @@ House-Price-Prediction/
 
 ## 🚀 Getting Started
 
-### **🌐 Web Applications (Multiple Options)**
+### **🌐 Cloud Deployment (Production)**
+
+#### **☁️ Vercel Cloud Hosting** (Recommended for Production)
+1. **Fork/Clone** this repository
+2. **Connect to Vercel**: Import project at vercel.com
+3. **Deploy**: Vercel automatically detects configuration
+4. **Access**: Your app at `https://your-project.vercel.app`
+5. **Features**: Global CDN, HTTPS, automatic scaling
+
+### **💻 Local Development (Multiple Options)**
 
 #### **🎯 Main Streamlit App** (Full-Featured)
-1. **Quick Launch**: Run `python launch.py` 
-2. **Direct Launch**: Run `streamlit run app.py`
-3. **Windows**: Double-click `SIMPLE_LAUNCH.bat`
-4. **Troubleshooting**: Run `python troubleshoot.py`
-5. **Access**: Open http://localhost:8501 in browser
+1. **Install Streamlit**: `pip install -r requirements_streamlit.txt`
+2. **Quick Launch**: Run `python launch.py` 
+3. **Direct Launch**: Run `streamlit run app.py`
+4. **Windows**: Double-click `SIMPLE_LAUNCH.bat`
+5. **Troubleshooting**: Run `python troubleshoot.py`
+6. **Access**: Open http://localhost:8501 in browser
 
 #### **🔧 Backup Web Server** (If Streamlit Issues)
 1. **Python Launch**: Run `python simple_web_app.py`
