@@ -1,22 +1,42 @@
-# Ignore Streamlit files
-app.py
-simple_web_app.py
+# Ignore Jupyter notebooks
+*.ipynb
+.ipynb_checkpoints/
+
+# Ignore batch files and local scripts  
 *.bat
 launch.py
 run_app.py
 troubleshoot.py
 test_app.py
+save_model.py
+_train_best.py
 
-# Ignore Jupyter files
-*.ipynb
-.ipynb_checkpoints/
+# Ignore Streamlit apps (not used in serverless)
+app.py
+simple_app.py
+simple_web_app.py
 
-# Ignore development files
-*.md
-*.txt
+# Ignore documentation (keep README)
+DEPLOYMENT_GUIDE.md
+HOW_TO_TEST_MODEL.md
+MODEL_IMPROVEMENTS_GUIDE.md
+VERCEL_DEPLOYMENT_FIX.md
+WEB_UI_GUIDE.md
+ADD_TO_NOTEBOOK.txt
+📚_COMPLETE_CODE_EXPLANATION.md
+
+# Ignore HTML files
 *.html
 
-# Keep only essential files for Vercel
-!api/
-!vercel.json
-!requirements_vercel.txt
+# Ignore data files (too large)
+Housing.csv
+*.csv
+
+# Ignore model artifacts (too large for serverless)
+models/
+*.joblib
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
