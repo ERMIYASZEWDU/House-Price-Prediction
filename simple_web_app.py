@@ -15,51 +15,19 @@ import time
 import json
 import urllib.parse
 import pandas as pd
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
+from ml_pipeline import train_all_models, build_feature_row
 import os
 
 # Load and prepare data
 def load_data():
     try:
-        df = pd.read_csv('Housing.csv')
-        # Encode categorical variables
-        df_processed = df.copy()
-        categorical_mappings = {
-            'mainroad': {'yes': 1, 'no': 0},
-            'guestroom': {'yes': 1, 'no': 0},
-            'basement': {'yes': 1, 'no': 0},
-            'hotwaterheating': {'yes': 1, 'no': 0},
-            'airconditioning': {'yes': 1, 'no': 0},
-            'prefarea': {'yes': 1, 'no': 0},
-            'furnishingstatus': {'furnished': 2, 'semi-furnished': 1, 'unfurnished': 0}
-        }
-        
-        for col, mapping in categorical_mappings.items():
-            df_processed[col] = df_processed[col].map(mapping)
-        
-        return df, df_processed
-    except Exception as e:
-        return None, None
-
-# Train model
-def train_model(df_processed):
-    if df_processed is None:
-        return None
-    
-    X = df_processed.drop('price', axis=1)
-    y = df_processed['price']
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    
-    model = LinearRegression()
-    model.fit(X_train, y_train)
-    score = model.score(X_test, y_test)
-    
-    return model, score
+        pipeline = train_all_models()
+        return pipeline['df_raw'], pipeline['best_model'], pipeline['best_name'], pipeline['best_score']
+    except Exception:
+        return None, None, None, 0
 
 # Initialize data and model
-df_original, df_processed = load_data()
-model, accuracy = train_model(df_processed) if df_processed is not None else (None, 0)
+df_original, model, model_name, accuracy = load_data()
 
 class HousePriceHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
@@ -435,12 +403,20 @@ class HousePriceHandler(http.server.BaseHTTPRequestHandler):
                     return
                 
                 # Make prediction
-                features = [[
-                    data['area'], data['bedrooms'], data['bathrooms'], data['stories'],
-                    data['mainroad'], data['guestroom'], data['basement'],
-                    data['hotwaterheating'], data['airconditioning'], data['parking'],
-                    data['prefarea'], data['furnishing']
-                ]]
+                features = build_feature_row(
+                    area=data['area'],
+                    bedrooms=data['bedrooms'],
+                    bathrooms=data['bathrooms'],
+                    stories=data['stories'],
+                    mainroad=data['mainroad'],
+                    guestroom=data['guestroom'],
+                    basement=data['basement'],
+                    hotwaterheating=data['hotwaterheating'],
+                    airconditioning=data['airconditioning'],
+                    parking=data['parking'],
+                    prefarea=data['prefarea'],
+                    furnishingstatus=data['furnishing'],
+                )
                 
                 prediction = model.predict(features)[0]
                 

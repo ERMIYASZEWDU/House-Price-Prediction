@@ -1,9 +1,7 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
 import plotly.express as px
+from ml_pipeline import train_all_models, build_feature_row
 
 st.set_page_config(
     page_title="🏠 House Price Predictor",
@@ -16,34 +14,13 @@ st.write("A simple and functional web app for predicting house prices!")
 
 # Try to load data
 try:
-    df = pd.read_csv('Housing.csv')
-    st.success(f"✅ Data loaded successfully! {len(df)} houses in dataset.")
-    
-    # Encode categorical data
-    df_processed = df.copy()
-    categorical_mappings = {
-        'mainroad': {'yes': 1, 'no': 0},
-        'guestroom': {'yes': 1, 'no': 0}, 
-        'basement': {'yes': 1, 'no': 0},
-        'hotwaterheating': {'yes': 1, 'no': 0},
-        'airconditioning': {'yes': 1, 'no': 0},
-        'prefarea': {'yes': 1, 'no': 0},
-        'furnishingstatus': {'furnished': 2, 'semi-furnished': 1, 'unfurnished': 0}
-    }
-    
-    for col, mapping in categorical_mappings.items():
-        df_processed[col] = df_processed[col].map(mapping)
-    
-    # Train model
-    X = df_processed.drop('price', axis=1)
-    y = df_processed['price']
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    
-    model = LinearRegression()
-    model.fit(X_train, y_train)
-    score = model.score(X_test, y_test)
-    
-    st.success(f"✅ Model trained! Accuracy (R²): {score:.3f}")
+    pipeline = train_all_models()
+    df = pipeline['df_raw']
+    model = pipeline['best_model']
+    model_name = pipeline['best_name']
+    score = pipeline['best_score']
+
+    st.success(f"✅ Data loaded! {len(df)} houses. Best model: **{model_name}** (R² = {score:.3f})")
     
     # Sidebar for input
     st.sidebar.header("🏡 Enter House Details")
@@ -65,18 +42,24 @@ try:
     
     # Predict button
     if st.sidebar.button("🔮 Predict Price", type="primary"):
-        # Prepare input
-        input_data = [[
-            area, bedrooms, bathrooms, stories,
-            1 if mainroad else 0,
-            1 if guestroom else 0, 
-            1 if basement else 0,
-            1 if hotwaterheating else 0,
-            1 if airconditioning else 0,
-            parking,
-            1 if prefarea else 0,
-            2 if furnishing == 'furnished' else 1 if furnishing == 'semi-furnished' else 0
-        ]]
+        furnish_code = (
+            2 if furnishing == 'furnished'
+            else 1 if furnishing == 'semi-furnished' else 0
+        )
+        input_data = build_feature_row(
+            area=area,
+            bedrooms=bedrooms,
+            bathrooms=bathrooms,
+            stories=stories,
+            mainroad=1 if mainroad else 0,
+            guestroom=1 if guestroom else 0,
+            basement=1 if basement else 0,
+            hotwaterheating=1 if hotwaterheating else 0,
+            airconditioning=1 if airconditioning else 0,
+            parking=parking,
+            prefarea=1 if prefarea else 0,
+            furnishingstatus=furnish_code,
+        )
         
         prediction = model.predict(input_data)[0]
         
@@ -114,15 +97,18 @@ try:
     
     # Price distribution chart
     fig = px.histogram(df, x='price', title='House Price Distribution', nbins=30)
-    fig.update_xaxis(title="Price (₹)")
-    fig.update_yaxis(title="Number of Houses")
+    fig.update_layout(xaxis_title="Price (₹)", yaxis_title="Number of Houses")
     st.plotly_chart(fig, use_container_width=True)
     
     # Price vs Area scatter
-    fig2 = px.scatter(df, x='area', y='price', title='Price vs Area', 
-                     trendline="ols", opacity=0.7)
-    fig2.update_xaxis(title="Area (sq ft)")
-    fig2.update_yaxis(title="Price (₹)")
+    try:
+        import statsmodels  # noqa: F401
+        trendline = "ols"
+    except ImportError:
+        trendline = None
+    fig2 = px.scatter(df, x='area', y='price', title='Price vs Area',
+                     trendline=trendline, opacity=0.7)
+    fig2.update_layout(xaxis_title="Area (sq ft)", yaxis_title="Price (₹)")
     st.plotly_chart(fig2, use_container_width=True)
 
 except FileNotFoundError:

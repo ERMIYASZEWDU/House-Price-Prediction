@@ -1,12 +1,14 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 import plotly.express as px
 import plotly.graph_objects as go
+from ml_pipeline import (
+    encode_categoricals,
+    engineer_features,
+    train_all_models,
+    build_feature_row,
+)
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -86,28 +88,11 @@ st.markdown("""
 def load_and_prepare_data():
     """Load and prepare the housing data"""
     try:
-        # Load the dataset
         df = pd.read_csv('Housing.csv')
         st.success(f"✅ Dataset loaded: {len(df)} houses with {len(df.columns)} features")
-        
-        # Create a copy for processing
-        df_processed = df.copy()
-        
-        # Encode categorical variables
-        categorical_mappings = {
-            'mainroad': {'yes': 1, 'no': 0},
-            'guestroom': {'yes': 1, 'no': 0},
-            'basement': {'yes': 1, 'no': 0},
-            'hotwaterheating': {'yes': 1, 'no': 0},
-            'airconditioning': {'yes': 1, 'no': 0},
-            'prefarea': {'yes': 1, 'no': 0},
-            'furnishingstatus': {'furnished': 2, 'semi-furnished': 1, 'unfurnished': 0}
-        }
-        
-        # Apply mappings
-        for col, mapping in categorical_mappings.items():
-            df_processed[col] = df_processed[col].map(mapping)
-        
+
+        df_processed = encode_categoricals(df)
+        df_processed = engineer_features(df_processed)
         return df, df_processed
     except FileNotFoundError:
         st.error("❌ Housing.csv file not found. Please ensure the dataset is in the same directory.")
@@ -118,63 +103,29 @@ def load_and_prepare_data():
 
 # Train models
 @st.cache_data
-def train_models(df_processed):
-    """Train and return machine learning models"""
-    if df_processed is None:
-        return None, None
-    
-    # Prepare features and target
-    X = df_processed.drop('price', axis=1)
-    y = df_processed['price']
-    
-    # Split data
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    
-    # Train Linear Regression
-    lr_model = LinearRegression()
-    lr_model.fit(X_train, y_train)
-    lr_pred = lr_model.predict(X_test)
-    lr_r2 = r2_score(y_test, lr_pred)
-    
-    # Train Random Forest  
-    rf_model = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1)
-    rf_model.fit(X_train, y_train)
-    rf_pred = rf_model.predict(X_test)
-    rf_r2 = r2_score(y_test, rf_pred)
-    
-    # Select best model
-    if rf_r2 > lr_r2:
-        best_model = rf_model
-        best_score = rf_r2
-        model_name = "Random Forest"
-    else:
-        best_model = lr_model
-        best_score = lr_r2
-        model_name = "Linear Regression"
-    
-    # Store results
-    results = {
-        'Linear Regression': {
-            'model': lr_model,
-            'r2': lr_r2,
-            'mae': mean_absolute_error(y_test, lr_pred),
-            'rmse': np.sqrt(mean_squared_error(y_test, lr_pred)),
-            'predictions': lr_pred,
-            'actual': y_test
-        },
-        'Random Forest': {
-            'model': rf_model,
-            'r2': rf_r2,
-            'mae': mean_absolute_error(y_test, rf_pred),
-            'rmse': np.sqrt(mean_squared_error(y_test, rf_pred)),
-            'predictions': rf_pred,
-            'actual': y_test
+def train_models(_df_processed):
+    """Train enhanced models and return the best performer."""
+    if _df_processed is None:
+        return None, None, None
+
+    pipeline = train_all_models()
+    results = {}
+    for name, metrics in pipeline['results'].items():
+        results[name] = {
+            'model': metrics['model'],
+            'r2': metrics['r2'],
+            'mae': metrics['mae'],
+            'rmse': metrics['rmse'],
+            'predictions': metrics['predictions'],
+            'actual': metrics['actual'],
         }
-    }
-    
-    st.success(f"🤖 Best Model: **{model_name}** with R² = **{best_score:.3f}** ({best_score*100:.1f}% accuracy)")
-    
-    return best_model, results
+
+    best_name = pipeline['best_name']
+    best_score = pipeline['best_score']
+    st.success(
+        f"🤖 Best Model: **{best_name}** with R² = **{best_score:.3f}** ({best_score * 100:.1f}% accuracy)"
+    )
+    return pipeline['best_model'], results, best_name
 
 # Main app
 def main():
@@ -190,7 +141,7 @@ def main():
             st.error("❌ Could not load data. Please check if Housing.csv exists.")
             return
         
-        model, results = train_models(df_processed)
+        model, results, best_name = train_models(df_processed)
         
         if model is None:
             st.error("❌ Could not train models.")
@@ -209,7 +160,7 @@ def main():
     st.sidebar.markdown("---")
     st.sidebar.markdown("""
     ### 🌟 **App Features:**
-    - 🤖 **AI Predictions** with 70%+ accuracy
+    - 🤖 **AI Predictions** with 67%+ accuracy
     - 📊 **Real-time Analytics** 
     - 🎨 **Beautiful Modern UI**
     - 📱 **Mobile Friendly**
@@ -239,8 +190,8 @@ def about_page():
         professional UI/UX design.
         
         ### ✨ **Key Features**
-        - 🤖 **Dual AI Models**: Linear Regression + Random Forest
-        - 🎯 **High Accuracy**: Up to 75%+ prediction accuracy
+        - 🤖 **Three AI Models**: Enhanced Linear, Random Forest, Gradient Boosting
+        - 🎯 **High Accuracy**: Up to 67%+ prediction accuracy (Gradient Boosting)
         - 🎨 **Modern Design**: Beautiful gradients and animations
         - 📱 **Responsive**: Works on desktop, tablet, and mobile
         - ⚡ **Real-time**: Instant price predictions
@@ -249,14 +200,15 @@ def about_page():
         ### 🛠️ **Technology Stack**
         - **Frontend**: Streamlit with Custom CSS
         - **Backend**: Python, Pandas, NumPy  
-        - **ML Models**: Scikit-learn (LinearRegression, RandomForest)
+        - **ML Models**: Scikit-learn (Enhanced Linear, Random Forest, Gradient Boosting)
         - **Visualization**: Plotly Interactive Charts
-        - **Data**: 545 house records with 13 features
+        - **Data**: 545 house records, 16 engineered features
         
         ### 📊 **Model Performance**
-        - **Linear Regression**: ~65% accuracy (baseline)
-        - **Random Forest**: ~75% accuracy (advanced)
-        - **Features Used**: Area, bedrooms, bathrooms, amenities
+        - **Enhanced Linear**: ~66% accuracy
+        - **Random Forest**: ~66% accuracy
+        - **Gradient Boosting**: ~67% accuracy (best)
+        - **Features Used**: Area, rooms, amenities, engineered ratios
         - **Prediction Speed**: < 100ms per prediction
         """)
     
@@ -265,8 +217,8 @@ def about_page():
         <div class="metric-card">
             <h3>📈 Project Stats</h3>
             <p><strong>Dataset Size:</strong> 545 houses</p>
-            <p><strong>Features:</strong> 13 attributes</p>
-            <p><strong>Model Accuracy:</strong> 75%+</p>
+            <p><strong>Features:</strong> 16 attributes</p>
+            <p><strong>Model Accuracy:</strong> 67%+</p>
             <p><strong>Prediction Speed:</strong> Real-time</p>
             <p><strong>UI Framework:</strong> Streamlit</p>
             <p><strong>Responsive:</strong> ✅ Yes</p>
@@ -365,22 +317,24 @@ def prediction_page(model, df, results):
         st.info(f"🤖 **Using Model:** {best_model_name} (Accuracy: {best_r2*100:.1f}%)")
         
         if st.button("🔮 **PREDICT HOUSE PRICE**", type="primary", use_container_width=True):
-            # Prepare input data
-            input_data = pd.DataFrame({
-                'area': [area],
-                'bedrooms': [bedrooms],
-                'bathrooms': [bathrooms],
-                'stories': [stories],
-                'mainroad': [1 if mainroad else 0],
-                'guestroom': [1 if guestroom else 0],
-                'basement': [1 if basement else 0],
-                'hotwaterheating': [1 if hotwaterheating else 0],
-                'airconditioning': [1 if airconditioning else 0],
-                'parking': [parking],
-                'prefarea': [1 if prefarea else 0],
-                'furnishingstatus': [2 if furnishingstatus == 'furnished' 
-                                   else 1 if furnishingstatus == 'semi-furnished' else 0]
-            })
+            furnish_code = (
+                2 if furnishingstatus == 'furnished'
+                else 1 if furnishingstatus == 'semi-furnished' else 0
+            )
+            input_data = build_feature_row(
+                area=area,
+                bedrooms=bedrooms,
+                bathrooms=bathrooms,
+                stories=stories,
+                mainroad=1 if mainroad else 0,
+                guestroom=1 if guestroom else 0,
+                basement=1 if basement else 0,
+                hotwaterheating=1 if hotwaterheating else 0,
+                airconditioning=1 if airconditioning else 0,
+                parking=parking,
+                prefarea=1 if prefarea else 0,
+                furnishingstatus=furnish_code,
+            )
             
             try:
                 # Make prediction
@@ -511,9 +465,14 @@ def analytics_page(df):
     
     with col2:
         st.subheader("📊 Price vs Area")
-        fig = px.scatter(df, x='area', y='price', 
+        try:
+            import statsmodels  # noqa: F401
+            trendline = "ols"
+        except ImportError:
+            trendline = None
+        fig = px.scatter(df, x='area', y='price',
                         title="Price vs Area Relationship",
-                        trendline="ols",
+                        trendline=trendline,
                         color_discrete_sequence=['#11998e'])
         fig.update_layout(xaxis_title="Area (sqft)", yaxis_title="Price (₹)")
         st.plotly_chart(fig, use_container_width=True)
@@ -684,31 +643,31 @@ def model_performance_page(results):
             - Model explains {best_model['Accuracy (%)']:.0f}% of price variance
             - Remaining {100-best_model['Accuracy (%)']:.0f}% depends on unmeasured factors
             """)
-    
-    # Feature importance (if Random Forest is available)
-    if 'Random Forest' in results and best_model_name == 'Random Forest':
-        st.subheader("🎯 Feature Importance (Random Forest)")
         
-        # Get feature importance
-        rf_model = results['Random Forest']['model']
-        feature_names = ['area', 'bedrooms', 'bathrooms', 'stories', 'mainroad', 
-                        'guestroom', 'basement', 'hotwaterheating', 'airconditioning', 
-                        'parking', 'prefarea', 'furnishingstatus']
-        
-        importance_df = pd.DataFrame({
-            'Feature': feature_names,
-            'Importance': rf_model.feature_importances_
-        }).sort_values('Importance', ascending=True)
-        
-        fig4 = px.bar(importance_df, x='Importance', y='Feature', orientation='h',
-                     title="📊 Which Features Matter Most?",
-                     color='Importance',
-                     color_continuous_scale='viridis')
-        fig4.update_layout(yaxis_title="Features", xaxis_title="Importance Score")
-        st.plotly_chart(fig4, use_container_width=True)
-        
-        st.info("💡 **Feature Importance** shows which house characteristics have the biggest impact on price predictions.")
-else:
+        # Feature importance (tree-based models)
+        tree_model_name = next(
+            (name for name in ('Gradient Boosting', 'Random Forest') if name in results),
+            None,
+        )
+        if tree_model_name and best_model_name == tree_model_name:
+            st.subheader(f"🎯 Feature Importance ({tree_model_name})")
+
+            from ml_pipeline import FEATURE_COLUMNS
+            tree_model = results[tree_model_name]['model']
+            importance_df = pd.DataFrame({
+                'Feature': FEATURE_COLUMNS,
+                'Importance': tree_model.feature_importances_
+            }).sort_values('Importance', ascending=True)
+            
+            fig4 = px.bar(importance_df, x='Importance', y='Feature', orientation='h',
+                         title="📊 Which Features Matter Most?",
+                         color='Importance',
+                         color_continuous_scale='viridis')
+            fig4.update_layout(yaxis_title="Features", xaxis_title="Importance Score")
+            st.plotly_chart(fig4, use_container_width=True)
+            
+            st.info("💡 **Feature Importance** shows which house characteristics have the biggest impact on price predictions.")
+    else:
         st.warning("🔍 Prediction accuracy analysis requires model training data.")
 
 if __name__ == "__main__":
