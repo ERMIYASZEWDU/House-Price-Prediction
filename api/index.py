@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify, render_template_string
-import json
 
 app = Flask(__name__)
 
@@ -28,6 +27,8 @@ def predict_house_price(features):
 
 
 @app.route('/')
+@app.route('/api')
+@app.route('/api/')
 def home():
     return render_template_string('''
 <!DOCTYPE html>
@@ -485,10 +486,3 @@ def predict():
             "price": 5000000,
             "analysis": "📊 <strong>Default Estimate</strong><br>Based on average market conditions."
         }), 500
-
-
-# Vercel serverless function handler
-def handler(request):
-    """Vercel handler function."""
-    with app.request_context(request.environ):
-        return app.full_dispatch_request()
